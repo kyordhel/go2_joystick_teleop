@@ -2,19 +2,35 @@ import math
 import rclpy
 from rclpy.node import Node
 
-from geometry_msgs.msg import Twist
+from std_msgs.msg import String
 from sensor_msgs.msg import Joy
+from geometry_msgs.msg import Twist
 
 
 class MinimalPublisher(Node):
     def __init__(self):
         super().__init__('joystick_teleop')
-        self.__pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.__pubCmdVel = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.__pubTrick  = self.create_publisher(String, '/go2_trick', 10)
         self.__sub = self.create_subscription(Joy,'/joy',
             self.joyCallback, 10)
     #end def
 
     def joyCallback(self, msgJoy):
+        msgTrick = String()
+        if msgJoy.buttons[0]:
+            msgTrick.data = "stand"
+            self.__pubTrick.publish(msgTrick)
+            return
+        elif msgJoy.buttons[1]:
+            msgTrick.data = "sit"
+            self.__pubTrick.publish(msgTrick)
+            return
+        elif msgJoy.buttons[2]:
+            msgTrick.data = "lay"
+            self.__pubTrick.publish(msgTrick)
+            return
+
         leftStickX  = msgJoy.axes[0]
         leftStickY  = msgJoy.axes[1]
         rightStickX = msgJoy.axes[2]
@@ -28,7 +44,7 @@ class MinimalPublisher(Node):
         msgTwist.angular.x = 0.0
         msgTwist.angular.y = 0.0
         msgTwist.angular.z = az
-        self.__pub.publish(msgTwist)
+        self.__pubCmdVel.publish(msgTwist)
 
     #end def
 
