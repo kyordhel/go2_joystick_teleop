@@ -52,8 +52,8 @@ class MinimalPublisher(Node):
         magnitude = math.sqrt(x**2 + y**2)
         if magnitude < 0.1:
             return 0.0, 0.0
-        lx = 0.5 * y
-        az = 0.8 * x
+        lx = 0.8 * y
+        az = 0.9 * x
         return lx, az
     #end def
 
