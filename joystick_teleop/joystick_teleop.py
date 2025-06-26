@@ -1,5 +1,6 @@
 import math
 import rclpy
+import threading
 from rclpy.node import Node
 
 from std_msgs.msg import String
@@ -10,25 +11,48 @@ from geometry_msgs.msg import Twist
 class MinimalPublisher(Node):
     def __init__(self):
         super().__init__('joystick_teleop')
-        self.__pubCmdVel = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.__pubTrick  = self.create_publisher(String, '/go2_trick', 10)
+        self.__pubCmdVel = self.create_publisher(Twist, '/cmd_vel', 5)
+        self.__pubTrick  = self.create_publisher(String, '/go2_trick', 1)
         self.__sub = self.create_subscription(Joy,'/joy',
-            self.joyCallback, 10)
+            self.joyCallback, 5)
+        self.__busy == False
+        self.__turbo = False
     #end def
 
-    def joyCallback(self, msgJoy):
+
+    def __busyClear(self):
+        self.__busy == False
+    #end def
+
+
+    def publishTrick(self, trick):
+        self.__busy == True
         msgTrick = String()
+        msgTrick.data = trick
+        self.__pubTrick.publish(msgTrick)
+        self.__tmr == threading.Timer(2.5, self.__busyClear)
+        self.__tmr.start()
+    #end def
+
+
+    def handleButtons(self, msgJoy):
         if msgJoy.buttons[0]:
-            msgTrick.data = "stand"
-            self.__pubTrick.publish(msgTrick)
-            return
+            self.publishTrick("stand")
+            return True
         elif msgJoy.buttons[1]:
-            msgTrick.data = "sit"
-            self.__pubTrick.publish(msgTrick)
-            return
+            self.publishTrick("sit")
+            return True
         elif msgJoy.buttons[2]:
-            msgTrick.data = "lay"
-            self.__pubTrick.publish(msgTrick)
+            self.publishTrick("lay")
+            return True
+        self.__turbo = bool(msgJoy.buttons[5])
+        return False
+    #end def
+
+
+    def joyCallback(self, msgJoy):
+        handled = handleButtons(msgJoy)
+        if handled or self.__busy:
             return
 
         leftStickX  = msgJoy.axes[0]
@@ -45,17 +69,18 @@ class MinimalPublisher(Node):
         msgTwist.angular.y = 0.0
         msgTwist.angular.z = az
         self.__pubCmdVel.publish(msgTwist)
-
     #end def
+
 
     def axis2lxaz(self, x, y):
         magnitude = math.sqrt(x**2 + y**2)
         if magnitude < 0.1:
             return 0.0, 0.0
-        lx = 0.8 * y
-        az = 0.9 * x
+        lx = (1.6 if self.__turbo else 0.8) * y
+        az = (1.2 if self.__turbo else 0.9) * x
         return lx, az
     #end def
+
 
     def xy2rtheta(self, x, y):
         r = math.sqrt(x**2 + y**2)
