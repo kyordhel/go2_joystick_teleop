@@ -15,13 +15,13 @@ class MinimalPublisher(Node):
         self.__pubTrick  = self.create_publisher(String, '/go2_trick', 1)
         self.__sub = self.create_subscription(Joy,'/joy',
             self.joyCallback, 5)
-        self.__busy == False
+        self.__busy = False
         self.__turbo = False
     #end def
 
 
     def __busyClear(self):
-        self.__busy == False
+        self.__busy = False
     #end def
 
 
