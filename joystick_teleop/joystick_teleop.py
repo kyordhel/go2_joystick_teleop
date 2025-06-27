@@ -36,15 +36,29 @@ class MinimalPublisher(Node):
 
 
     def handleButtons(self, msgJoy):
-        if msgJoy.buttons[0]:
+        if msgJoy.buttons[0]: # C^
             self.publishTrick("stand")
             return True
-        elif msgJoy.buttons[1]:
+        elif msgJoy.buttons[1]: # C>
             self.publishTrick("sit")
             return True
-        elif msgJoy.buttons[2]:
+        elif msgJoy.buttons[2]: # Cv
             self.publishTrick("lay")
             return True
+        # elif msgJoy.buttons[3]: # C<
+        # elif msgJoy.buttons[4]: # L
+        # elif msgJoy.buttons[5]: # R
+        # elif msgJoy.buttons[7]: # Z
+        elif msgJoy.buttons[6]: # A
+            self.publishTrick("dance1")
+            return True
+        elif msgJoy.buttons[8]: # B
+            self.publishTrick("dance2")
+            return True
+        elif msgJoy.axes[6] > 0: # DPad Up
+            self.publishTrick("bodyUp")
+        elif msgJoy.axes[6] < 0: # DPad Down
+            self.publishTrick("bodyDown")
         self.__turbo = bool(msgJoy.buttons[5])
         return False
     #end def
