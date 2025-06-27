@@ -17,6 +17,7 @@ class MinimalPublisher(Node):
             self.joyCallback, 5)
         self.__busy = False
         self.__turbo = False
+        self.__tmr = None
     #end def
 
 
@@ -26,11 +27,11 @@ class MinimalPublisher(Node):
 
 
     def publishTrick(self, trick):
-        self.__busy == True
+        self.__busy = True
         msgTrick = String()
         msgTrick.data = trick
         self.__pubTrick.publish(msgTrick)
-        self.__tmr == threading.Timer(2.5, self.__busyClear)
+        self.__tmr = threading.Timer(2.5, self.__busyClear)
         self.__tmr.start()
     #end def
 
