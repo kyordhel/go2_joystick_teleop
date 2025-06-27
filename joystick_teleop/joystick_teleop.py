@@ -65,7 +65,7 @@ class MinimalPublisher(Node):
 
 
     def joyCallback(self, msgJoy):
-        handled = handleButtons(msgJoy)
+        handled = self.handleButtons(msgJoy)
         if handled or self.__busy:
             return
 
